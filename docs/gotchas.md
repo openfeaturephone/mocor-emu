@@ -45,6 +45,16 @@ stock memset hot loop does exactly this, inlined at many sites, so the loader re
 the masked window, no tick was ever injected and the OS clock stopped. A chunk that stops right
 after WFI now counts as idle time and the due IRQ is delivered (`WFI_WAKE`).
 
+**The default CPU is a Cortex-A15 that starts Non-secure with `NSACR = 0`** (`fplinux_emu.py`, but
+it would bite any ARMv7 guest that uses VFP). The UMS9117 core is a Cortex-A7, and `NSACR = 0` means
+the Non-secure world may not touch CP10/CP11, so unicorn silently drops those bits from every
+CPACR write the guest makes. The FPLinux kernel enables VFP through CPACR, the enable was dropped,
+and every VFP instruction then trapped as undefined, which looked like a kernel bug rather than a
+model one. On the phone the secure boot firmware grants Non-secure CP10/CP11 before Linux runs; the
+emulator has no secure firmware, so set the model to Cortex-A7 and write `NSACR` (`cp15 1,1,2`) =
+0xC00 yourself before entry. Don't paper over it by forcing CPACR/FPEXC after the trap: that hides
+a wrong CPU model.
+
 ## Timing
 
 **The OS is tickless; model real time or timers lie.** Firing TMR0 every 1 ms made the OS clock run
