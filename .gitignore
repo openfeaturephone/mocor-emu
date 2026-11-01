@@ -1,0 +1,28 @@
+# firmware you dump yourself: never commit
+firmware/*
+!firmware/README.md
+*.bin
+*.ckpt
+*.npz
+
+# your own disassembler exports and app binaries
+funcs/
+apps/
+
+# emulator output
+runs/
+hostfs/
+checkpoints/
+*.log
+*.png
+*.sqlite
+*.pkl
+
+# build output
+native/*.dll
+native/*.so
+native/*.lib
+native/*.pdb
+native/*.o
+__pycache__/
+*.pyc
